@@ -21,9 +21,9 @@ public class PassportItem extends Item {
         }
         ItemStack stack = user.getItemInHand(hand);
         if (!PassportMod.PassportData.isIssued(stack)) {
-            user.sendSystemMessage(Component.literal("Чистый бланк паспорта. Оформить: /passport fill \"Фамилия\" \"Имя\" \"Отчество\" М 01.01.2000 \"Место рождения\" 26.09.2026 \"Орган выдачи\" 770-001 \"Регистрация\""));
+            user.sendSystemMessage(Component.literal("Чистый бланк паспорта. Подойдите к паспортному столу и используйте /passport fill ... или /passport issue ..."));
         } else if (user instanceof net.minecraft.server.level.ServerPlayer serverPlayer) {
-            PassportMod.PassportData.sendFull(serverPlayer, stack);
+            PassportMod.PassportData.showPage(serverPlayer, stack, 1);
         }
         return InteractionResult.SUCCESS;
     }

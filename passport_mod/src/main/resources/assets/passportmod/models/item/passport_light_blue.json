@@ -1,7 +1,7 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "passportmod:item/passport"
+    "layer0": "passportmod:item/passport_light_blue"
   },
   "display": {
     "firstperson_righthand": {

@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/orientable",
+  "textures": {
+    "top": "passportmod:block/passport_desk_top",
+    "front": "passportmod:block/passport_desk_front",
+    "side": "passportmod:block/passport_desk_side"
+  }
+}

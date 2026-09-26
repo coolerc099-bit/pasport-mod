@@ -1,3 +1,20 @@
 {
-  "item.passportmod.passport": "Паспортный бланк"
+  "item.passportmod.passport": "Паспортный бланк (красная обложка)",
+  "item.passportmod.passport_white": "Паспортный бланк (белая обложка)",
+  "item.passportmod.passport_orange": "Паспортный бланк (оранжевая обложка)",
+  "item.passportmod.passport_magenta": "Паспортный бланк (пурпурная обложка)",
+  "item.passportmod.passport_light_blue": "Паспортный бланк (голубая обложка)",
+  "item.passportmod.passport_yellow": "Паспортный бланк (жёлтая обложка)",
+  "item.passportmod.passport_lime": "Паспортный бланк (салатовая обложка)",
+  "item.passportmod.passport_pink": "Паспортный бланк (розовая обложка)",
+  "item.passportmod.passport_gray": "Паспортный бланк (серая обложка)",
+  "item.passportmod.passport_light_gray": "Паспортный бланк (светло-серая обложка)",
+  "item.passportmod.passport_cyan": "Паспортный бланк (бирюзовая обложка)",
+  "item.passportmod.passport_purple": "Паспортный бланк (фиолетовая обложка)",
+  "item.passportmod.passport_blue": "Паспортный бланк (синяя обложка)",
+  "item.passportmod.passport_brown": "Паспортный бланк (коричневая обложка)",
+  "item.passportmod.passport_green": "Паспортный бланк (зелёная обложка)",
+  "item.passportmod.passport_black": "Паспортный бланк (чёрная обложка)",
+  "block.passportmod.passport_desk": "Паспортный стол",
+  "item.passportmod.passport_desk": "Паспортный стол"
 }

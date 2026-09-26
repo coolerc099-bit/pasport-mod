@@ -2,11 +2,11 @@ plugins {
     id 'net.fabricmc.fabric-loom' version "${loom_version}"
     id 'maven-publish'
 }
- 
+
 repositories {
     maven { url = 'https://libraries.minecraft.net/' }
 }
- 
+
 loom {
     splitEnvironmentSourceSets()
     mods {
@@ -16,13 +16,13 @@ loom {
         }
     }
 }
- 
+
 dependencies {
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
     implementation "net.fabricmc:fabric-loader:${project.loader_version}"
     implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
 }
- 
+
 processResources {
     def version = project.version
     inputs.property "version", version
@@ -30,23 +30,23 @@ processResources {
         expand "version": version
     }
 }
- 
+
 tasks.withType(JavaCompile).configureEach {
     it.options.release = 25
 }
- 
+
 java {
     withSourcesJar()
     sourceCompatibility = JavaVersion.VERSION_25
     targetCompatibility = JavaVersion.VERSION_25
 }
- 
+
 jar {
     from("LICENSE") {
         rename { "LICENSE_${project.name}" }
     }
 }
- 
+
 publishing {
     publications {
         create("mavenJava", MavenPublication) {
@@ -56,4 +56,3 @@ publishing {
     repositories {
     }
 }
- 
