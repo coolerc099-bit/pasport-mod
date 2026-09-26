@@ -14,10 +14,10 @@ public final class PassportModClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         ClientPlayNetworking.registerGlobalReceiver(PassportMod.OpenGuiPayload.TYPE, (payload, context) ->
-                context.client().execute(() -> Minecraft.getInstance().setScreen(PassportScreens.create(payload.screen(), payload.data()))));
+                context.client().execute(() -> Minecraft.getInstance().setScreenAndShow(PassportScreens.create(payload.screen(), payload.data()))));
         ClientPlayNetworking.registerGlobalReceiver(PassportMod.NoticePayload.TYPE, (payload, context) ->
-                context.client().execute(() -> Minecraft.getInstance().player.displayClientMessage(
-                        Component.literal(payload.message()).withStyle(ChatFormatting.YELLOW), false)));
+                context.client().execute(() -> Minecraft.getInstance().player.sendSystemMessage(
+                        Component.literal(payload.message()).withStyle(ChatFormatting.YELLOW))));
 
         ItemTooltipCallback.EVENT.register((stack, context, type, tooltip) -> {
             if (!(stack.getItem() instanceof PassportItem)) return;

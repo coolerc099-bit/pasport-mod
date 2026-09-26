@@ -8,7 +8,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.client.gui.components.PlayerFaceExtractor;
+import net.minecraft.client.gui.components.PlayerFaceRenderer;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -95,9 +95,8 @@ final class PassportScreens {
         }
 
         @Override
-        public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
-            extractMenuBackground(graphics);
-            super.extractRenderState(graphics, mouseX, mouseY, partialTick);
+        public void render(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+            super.render(graphics, mouseX, mouseY, partialTick);
         }
     }
 
@@ -157,12 +156,12 @@ final class PassportScreens {
                 button("Регистрация", left + 10, top + 118, 165, 24, () -> {
                     JsonObject record = data.getAsJsonObject("record");
                     JsonObject payload = record.deepCopy();
-                    Minecraft.getInstance().setScreen(PassportScreens.create("registration", payload.toString()));
+                    Minecraft.getInstance().setScreenAndShow(PassportScreens.create("registration", payload.toString()));
                 });
-                button("Брак", left + 185, top + 118, 165, 24, () -> Minecraft.getInstance().setScreen(PassportScreens.create("marriage", "{}")));
-                button("Дети", left + 10, top + 146, 165, 24, () -> Minecraft.getInstance().setScreen(PassportScreens.create("children", "{}")));
-                button("Военная служба", left + 185, top + 146, 165, 24, () -> Minecraft.getInstance().setScreen(PassportScreens.create("military", "{}")));
-                button("Дополнительные сведения", left + 10, top + 174, 165, 24, () -> Minecraft.getInstance().setScreen(PassportScreens.create("extra", "{}")));
+                button("Брак", left + 185, top + 118, 165, 24, () -> Minecraft.getInstance().setScreenAndShow(PassportScreens.create("marriage", "{}")));
+                button("Дети", left + 10, top + 146, 165, 24, () -> Minecraft.getInstance().setScreenAndShow(PassportScreens.create("children", "{}")));
+                button("Военная служба", left + 185, top + 146, 165, 24, () -> Minecraft.getInstance().setScreenAndShow(PassportScreens.create("military", "{}")));
+                button("Дополнительные сведения", left + 10, top + 174, 165, 24, () -> Minecraft.getInstance().setScreenAndShow(PassportScreens.create("extra", "{}")));
                 if ("VALID".equals(value(data.getAsJsonObject("record"), "status"))) {
                     button("Отметить как утерянный", left + 185, top + 174, 165, 24, () -> PassportModClient.send("SET_STATUS", PassportMod.encodeFields("LOST")));
                 } else {
@@ -298,11 +297,11 @@ final class PassportScreens {
         }
 
         @Override
-        public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
-            super.extractRenderState(graphics, mouseX, mouseY, partialTick);
+        public void render(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+            super.render(graphics, mouseX, mouseY, partialTick);
             if (page == 1) {
                 PlayerSkin skin = resolveSkin(value(data, "ownerUuid"));
-                if (skin != null) PlayerFaceExtractor.extractRenderState(graphics, skin, left + 242, top + 55, 86);
+                if (skin != null) PlayerFaceRenderer.draw(graphics, skin, left + 242, top + 55, 86);
             }
         }
 
