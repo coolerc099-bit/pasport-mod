@@ -250,10 +250,10 @@ public class PassportMod implements ModInitializer {
                 return 0;
             }
             Set<UUID> eligible = new HashSet<>();
-            for (ServerPlayer online : player.getServer().getPlayerList().getPlayers()) {
+            for (ServerPlayer online : player.level().getServer().getPlayerList().getPlayers()) {
                 eligible.add(online.getUUID());
             }
-            long expires = player.getServer().overworld().getGameTime() + 1200L;
+            long expires = player.level().getServer().overworld().getGameTime() + 1200L;
             VoteSession session = new VoteSession(player.getUUID(), id, surname, name, patronymic, Set.copyOf(eligible), new HashMap<>(), expires);
             if (ACTIVE_VOTE != null) {
                 player.sendSystemMessage(Component.literal("Сейчас уже идёт другое голосование. Дождитесь его окончания.").withStyle(ChatFormatting.RED));
@@ -261,9 +261,9 @@ public class PassportMod implements ModInitializer {
             }
             ACTIVE_VOTE = session;
 
-            broadcast(player.getServer(), "Игрок " + player.getName().getString() + " открыл голосование за смену ФИО на: "
+            broadcast(player.level().getServer(), "Игрок " + player.getName().getString() + " открыл голосование за смену ФИО на: "
                     + surname + " " + name + " " + patronymic + ". Голосование 60 секунд.");
-            broadcast(player.getServer(), "Проголосовать: /passport vote yes или /passport vote no");
+            broadcast(player.level().getServer(), "Проголосовать: /passport vote yes или /passport vote no");
             player.sendSystemMessage(Component.literal("Необходимо строго больше 50% голосов от участников, бывших онлайн при старте.").withStyle(ChatFormatting.GRAY));
             return 1;
         }
@@ -285,10 +285,10 @@ public class PassportMod implements ModInitializer {
             session.votes().put(player.getUUID(), yes);
             int yesCount = session.yesCount();
             int total = session.eligibleVoters().size();
-            broadcast(player.getServer(), "Голосование: ЗА " + yesCount + "/" + total + ", ПРОТИВ " + session.noCount());
+            broadcast(player.level().getServer(), "Голосование: ЗА " + yesCount + "/" + total + ", ПРОТИВ " + session.noCount());
 
             if (yesCount * 2 > total) {
-                applyNameChange(player.getServer(), session);
+                applyNameChange(player.level().getServer(), session);
                 ACTIVE_VOTE = null;
             }
             return 1;
