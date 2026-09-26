@@ -1,0 +1,11 @@
+Passport RP Fabric 26.3 source check
+
+Checked:
+- JSON resources parse successfully.
+- PassportMod.java delimiters are balanced.
+- No stale ResourceLocation.fromNamespaceAndPath usage remains.
+- No duplicate issuingAuthority parameter remains.
+- Passport texture is 32x32 RGBA.
+
+Not checked in this container:
+- Full Gradle/Minecraft compilation, because this environment has Java 21 and no Gradle 9.6 installation. Minecraft 26.3 development is configured for Java 25.

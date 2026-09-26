@@ -1,0 +1,39 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "passportmod:item/passport"
+  },
+  "display": {
+    "firstperson_righthand": {
+      "rotation": [0, 0, 8],
+      "translation": [0, 1, 0],
+      "scale": [1.2, 1.2, 1.2]
+    },
+    "firstperson_lefthand": {
+      "rotation": [0, 0, -8],
+      "translation": [0, 1, 0],
+      "scale": [1.2, 1.2, 1.2]
+    },
+    "thirdperson_righthand": {
+      "rotation": [0, 90, 0],
+      "translation": [0, 1.8, 0],
+      "scale": [0.9, 0.9, 0.9]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [0, 90, 0],
+      "translation": [0, 1.8, 0],
+      "scale": [0.9, 0.9, 0.9]
+    },
+    "gui": {
+      "rotation": [0, 0, 0],
+      "translation": [0, 0, 0],
+      "scale": [1.25, 1.25, 1.25]
+    },
+    "ground": {
+      "rotation": [0, 0, 0],
+      "translation": [0, 1, 0],
+      "scale": [0.8, 0.8, 0.8]
+    }
+  },
+  "gui_light": "front"
+}
