@@ -251,9 +251,9 @@ public class PassportMod implements ModInitializer {
 
     static void broadcastVotePrompt(MinecraftServer server, String question) {
         Component yes = Component.literal("[ДА]").setStyle(Style.EMPTY.withColor(ChatFormatting.GREEN)
-                .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/passport vote yes")));
+                .withClickEvent(new ClickEvent.RunCommand("/passport vote yes")));
         Component no = Component.literal("[НЕТ]").setStyle(Style.EMPTY.withColor(ChatFormatting.RED)
-                .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/passport vote no")));
+                .withClickEvent(new ClickEvent.RunCommand("/passport vote no")));
         Component full = Component.literal(question + "  ").withStyle(ChatFormatting.YELLOW)
                 .copy().append(yes).append(Component.literal("  ")).append(no);
         server.getPlayerList().broadcastSystemMessage(full, false);
@@ -645,12 +645,12 @@ public class PassportMod implements ModInitializer {
             Component nav = Component.literal("");
             if (page > 1) {
                 nav = nav.copy().append(Component.literal("[« Назад]").withStyle(Style.EMPTY.withColor(ChatFormatting.AQUA)
-                        .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/passport page " + (page - 1)))));
+                        .withClickEvent(new ClickEvent.RunCommand("/passport page " + (page - 1)))));
             }
             if (page < 3) {
                 if (page > 1) nav = nav.copy().append(Component.literal("  "));
                 nav = nav.copy().append(Component.literal("[Далее »]").withStyle(Style.EMPTY.withColor(ChatFormatting.AQUA)
-                        .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/passport page " + (page + 1)))));
+                        .withClickEvent(new ClickEvent.RunCommand("/passport page " + (page + 1)))));
             }
             player.sendSystemMessage(nav);
         }
