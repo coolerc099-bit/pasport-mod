@@ -83,7 +83,7 @@ public class PassportMod implements ModInitializer {
                                                                                         .then(Commands.argument("issuingAuthority", StringArgumentType.string())
                                                                                                 .then(Commands.argument("unitCode", StringArgumentType.string())
                                                                                                         .then(Commands.argument("registration", StringArgumentType.greedyString())
-                                                                                                                .executes(PassportCommands::fillSelf)))))))))))))
+                                                                                                                .executes(PassportCommands::fillSelf))))))))))))
                         .then(Commands.literal("issue")
                                 .then(Commands.argument("player", EntityArgument.player())
                                         .then(Commands.argument("surname", StringArgumentType.string())
@@ -101,7 +101,7 @@ public class PassportMod implements ModInitializer {
                                 .then(Commands.argument("surname", StringArgumentType.string())
                                         .then(Commands.argument("name", StringArgumentType.string())
                                                 .then(Commands.argument("patronymic", StringArgumentType.string())
-                                                        .executes(PassportCommands::startNameChange))))
+                                                        .executes(PassportCommands::startNameChange)))))
                         .then(Commands.literal("vote")
                                 .then(Commands.literal("yes").executes(ctx -> PassportCommands.vote(ctx.getSource(), true)))
                                 .then(Commands.literal("no").executes(ctx -> PassportCommands.vote(ctx.getSource(), false))))
@@ -250,10 +250,10 @@ public class PassportMod implements ModInitializer {
                 return 0;
             }
             Set<UUID> eligible = new HashSet<>();
-            for (ServerPlayer online : player.server.getPlayerList().getPlayers()) {
+            for (ServerPlayer online : player.getServer().getPlayerList().getPlayers()) {
                 eligible.add(online.getUUID());
             }
-            long expires = player.server.overworld().getGameTime() + 1200L;
+            long expires = player.getServer().overworld().getGameTime() + 1200L;
             VoteSession session = new VoteSession(player.getUUID(), id, surname, name, patronymic, Set.copyOf(eligible), new HashMap<>(), expires);
             if (ACTIVE_VOTE != null) {
                 player.sendSystemMessage(Component.literal("Сейчас уже идёт другое голосование. Дождитесь его окончания.").withStyle(ChatFormatting.RED));
@@ -261,9 +261,9 @@ public class PassportMod implements ModInitializer {
             }
             ACTIVE_VOTE = session;
 
-            broadcast(player.server, "Игрок " + player.getName().getString() + " открыл голосование за смену ФИО на: "
+            broadcast(player.getServer(), "Игрок " + player.getName().getString() + " открыл голосование за смену ФИО на: "
                     + surname + " " + name + " " + patronymic + ". Голосование 60 секунд.");
-            broadcast(player.server, "Проголосовать: /passport vote yes или /passport vote no");
+            broadcast(player.getServer(), "Проголосовать: /passport vote yes или /passport vote no");
             player.sendSystemMessage(Component.literal("Необходимо строго больше 50% голосов от участников, бывших онлайн при старте.").withStyle(ChatFormatting.GRAY));
             return 1;
         }
@@ -285,10 +285,10 @@ public class PassportMod implements ModInitializer {
             session.votes().put(player.getUUID(), yes);
             int yesCount = session.yesCount();
             int total = session.eligibleVoters().size();
-            broadcast(player.server, "Голосование: ЗА " + yesCount + "/" + total + ", ПРОТИВ " + session.noCount());
+            broadcast(player.getServer(), "Голосование: ЗА " + yesCount + "/" + total + ", ПРОТИВ " + session.noCount());
 
             if (yesCount * 2 > total) {
-                applyNameChange(player.server, session);
+                applyNameChange(player.getServer(), session);
                 ACTIVE_VOTE = null;
             }
             return 1;
