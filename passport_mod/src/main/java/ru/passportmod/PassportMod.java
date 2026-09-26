@@ -7,7 +7,8 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
-import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
+import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents;
+import net.minecraft.server.level.ServerLevel;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.ChatFormatting;
@@ -30,7 +31,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.BlockBehaviour;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -201,7 +202,7 @@ public final class PassportMod implements ModInitializer {
     }
 
     private static void registerCreativeEntries() {
-        ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.INGREDIENTS).register(entries -> {
+        CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.INGREDIENTS).register(entries -> {
             for (PassportItem item : PASSPORT_VARIANTS.values()) entries.accept(item);
             entries.accept(PASSPORT_DESK_ITEM);
         });
@@ -469,7 +470,7 @@ public final class PassportMod implements ModInitializer {
             return;
         }
 
-        PassportStorage storage = PassportStorage.get(player.serverLevel());
+        PassportStorage storage = PassportStorage.get(((ServerLevel) player.level()));
         JsonObject root = storage.root();
         JsonObject passports = root.getAsJsonObject("passports");
         String ownerUuid = player.getUUID().toString();
@@ -655,7 +656,7 @@ public final class PassportMod implements ModInitializer {
             return;
         }
 
-        PassportStorage storage = PassportStorage.get(player.serverLevel());
+        PassportStorage storage = PassportStorage.get(((ServerLevel) player.level()));
         JsonObject root = storage.root();
         JsonObject cooldowns = root.getAsJsonObject("cooldowns");
         cooldowns.addProperty(player.getUUID().toString(), System.currentTimeMillis());
@@ -821,7 +822,7 @@ public final class PassportMod implements ModInitializer {
     private static void replacePassport(ServerPlayer player) {
         if (!isNearDesk(player)) { notice(player, "Замена паспорта выполняется у паспортного стола."); return; }
         PassportRecord current = requireCurrentRecord(player); if (current == null) return;
-        PassportStorage storage = PassportStorage.get(player.serverLevel());
+        PassportStorage storage = PassportStorage.get(((ServerLevel) player.level()));
         JsonObject root = storage.root();
         JsonObject archive = root.has("archive") ? root.getAsJsonObject("archive") : new JsonObject();
         PassportRecord old = current.withStatus(PassportStatus.REPLACED.id, "Документ заменён новым паспортом");
@@ -852,7 +853,7 @@ public final class PassportMod implements ModInitializer {
     static PassportRecord currentRecord(ServerPlayer player) {
         String path = pocketItemPath(player);
         if (path == null) return null;
-        PassportStorage storage = PassportStorage.get(player.serverLevel());
+        PassportStorage storage = PassportStorage.get(((ServerLevel) player.level()));
         JsonObject passports = storage.root().getAsJsonObject("passports");
         JsonElement element = passports.get(player.getUUID().toString());
         if (element == null || !element.isJsonObject()) return null;
@@ -865,7 +866,7 @@ public final class PassportMod implements ModInitializer {
         String ownerUuid = PassportData.get(stack, "owner_uuid");
         String id = PassportData.get(stack, "passport_id");
         if (ownerUuid.isBlank() || id.isBlank() || !ownerUuid.equals(player.getUUID().toString())) return null;
-        PassportStorage storage = PassportStorage.get(player.serverLevel());
+        PassportStorage storage = PassportStorage.get(((ServerLevel) player.level()));
         JsonObject root = storage.root();
         JsonObject passport = root.getAsJsonObject("passports").getAsJsonObject(player.getUUID().toString());
         if (passport != null && id.equals(passport.get("id").getAsString())) {
@@ -885,7 +886,7 @@ public final class PassportMod implements ModInitializer {
     }
 
     private static void putCurrentRecord(ServerPlayer player, PassportRecord record) {
-        PassportStorage storage = PassportStorage.get(player.serverLevel());
+        PassportStorage storage = PassportStorage.get(((ServerLevel) player.level()));
         JsonObject root = storage.root();
         root.getAsJsonObject("passports").add(player.getUUID().toString(), record.toJson());
         storage.root(root);
@@ -921,13 +922,13 @@ public final class PassportMod implements ModInitializer {
     }
 
     private static String pocketItemPath(ServerPlayer player) {
-        JsonObject root = PassportStorage.get(player.serverLevel()).root();
+        JsonObject root = PassportStorage.get(((ServerLevel) player.level())).root();
         JsonElement value = root.getAsJsonObject("pockets").get(player.getUUID().toString());
         return value == null || value.getAsString().isBlank() ? null : value.getAsString();
     }
 
     private static void setPocketItemPath(ServerPlayer player, @Nullable String path) {
-        PassportStorage storage = PassportStorage.get(player.serverLevel());
+        PassportStorage storage = PassportStorage.get(((ServerLevel) player.level()));
         JsonObject root = storage.root();
         JsonObject pockets = root.getAsJsonObject("pockets");
         String uuid = player.getUUID().toString();
@@ -937,7 +938,7 @@ public final class PassportMod implements ModInitializer {
     }
 
     private static long nameCooldownRemaining(ServerPlayer player) {
-        JsonObject root = PassportStorage.get(player.serverLevel()).root();
+        JsonObject root = PassportStorage.get(((ServerLevel) player.level())).root();
         JsonElement value = root.getAsJsonObject("cooldowns").get(player.getUUID().toString());
         if (value == null) return 0L;
         long left = FIO_COOLDOWN_MILLIS - (System.currentTimeMillis() - value.getAsLong());
