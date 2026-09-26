@@ -287,7 +287,7 @@ public final class PassportMod implements ModInitializer {
             notice(target, "Нет ожидающего запроса на показ паспорта.");
             return 0;
         }
-        ServerPlayer sender = target.server.getPlayerList().getPlayer(request.senderUuid());
+        ServerPlayer sender = ((ServerLevel) target.level()).getServer().getPlayerList().getPlayer(request.senderUuid());
         if (sender == null || !sameWorld(sender, target) || sender.distanceToSqr(target) > DESK_RADIUS * DESK_RADIUS) {
             notice(target, "Показ отменён: игрок больше не рядом. Требуется тот же мир и максимум 4 блока.");
             return 0;
@@ -310,7 +310,7 @@ public final class PassportMod implements ModInitializer {
             notice(target, "Нет ожидающего запроса на показ паспорта.");
             return 0;
         }
-        ServerPlayer sender = target.server.getPlayerList().getPlayer(request.senderUuid());
+        ServerPlayer sender = ((ServerLevel) target.level()).getServer().getPlayerList().getPlayer(request.senderUuid());
         if (sender != null) notice(sender, "Игрок отказался от просмотра паспорта.");
         notice(target, "Запрос отклонён.");
         return 1;
@@ -586,7 +586,7 @@ public final class PassportMod implements ModInitializer {
 
     private static int findPassportInventorySlot(ServerPlayer player) {
         // Сначала основной и дополнительный слот руки.
-        if (player.getMainHandItem().getItem() instanceof PassportItem) return player.getInventory().selected;
+        if (player.getMainHandItem().getItem() instanceof PassportItem) return player.getInventory().getSelectedSlot();
         if (player.getOffhandItem().getItem() instanceof PassportItem) return 40;
         for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
             if (player.getInventory().getItem(i).getItem() instanceof PassportItem) return i;
@@ -663,10 +663,10 @@ public final class PassportMod implements ModInitializer {
         storage.root(root);
 
         List<UUID> voters = new ArrayList<>();
-        for (ServerPlayer online : player.server.getPlayerList().getPlayers()) voters.add(online.getUUID());
+        for (ServerPlayer online : ((ServerLevel) player.level()).getServer().getPlayerList().getPlayers()) voters.add(online.getUUID());
         activeVote = new VoteSession(player.getUUID(), record.id(), scope, record.surname(), record.name(), record.patronymic(),
                 surname, name, patronymic, System.currentTimeMillis(), voters);
-        for (ServerPlayer online : player.server.getPlayerList().getPlayers()) {
+        for (ServerPlayer online : ((ServerLevel) player.level()).getServer().getPlayerList().getPlayers()) {
             JsonObject voteJson = activeVote.toJson();
             sendGui(online, "vote", voteJson);
         }
@@ -694,9 +694,9 @@ public final class PassportMod implements ModInitializer {
         }
         activeVote.voted().add(player.getUUID());
         notice(player, "Голос принят.");
-        if (activeVote.voted().size() >= activeVote.voters().size()) finishVote(player.server, true);
-        else if (activeVote.yes().size() * 2 > activeVote.voters().size()) finishVote(player.server, true);
-        else if (activeVote.no().size() * 2 >= activeVote.voters().size()) finishVote(player.server, false);
+        if (activeVote.voted().size() >= activeVote.voters().size()) finishVote(((ServerLevel) player.level()).getServer(), true);
+        else if (activeVote.yes().size() * 2 > activeVote.voters().size()) finishVote(((ServerLevel) player.level()).getServer(), true);
+        else if (activeVote.no().size() * 2 >= activeVote.voters().size()) finishVote(((ServerLevel) player.level()).getServer(), false);
     }
 
     private static void finishVote(MinecraftServer server, boolean earlyFinish) {
