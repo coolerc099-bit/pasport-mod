@@ -170,12 +170,12 @@ public class PassportMod implements ModInitializer {
     static final class PassportCommands {
         private PassportCommands() {}
 
-        static int fillSelf(com.mojang.brigadier.context.CommandContext<net.minecraft.commands.CommandSourceStack> ctx) {
+        static int fillSelf(com.mojang.brigadier.context.CommandContext<net.minecraft.commands.CommandSourceStack> ctx) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
             ServerPlayer player = ctx.getSource().getPlayerOrException();
             return fillPassport(ctx, player, player, false);
         }
 
-        static int issueOther(com.mojang.brigadier.context.CommandContext<net.minecraft.commands.CommandSourceStack> ctx) {
+        static int issueOther(com.mojang.brigadier.context.CommandContext<net.minecraft.commands.CommandSourceStack> ctx) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
             ServerPlayer issuer = ctx.getSource().getPlayerOrException();
             ServerPlayer target = EntityArgument.getPlayer(ctx, "player");
             return fillPassport(ctx, issuer, target, true);
@@ -226,7 +226,7 @@ public class PassportMod implements ModInitializer {
             return 1;
         }
 
-        static int startNameChange(com.mojang.brigadier.context.CommandContext<net.minecraft.commands.CommandSourceStack> ctx) {
+        static int startNameChange(com.mojang.brigadier.context.CommandContext<net.minecraft.commands.CommandSourceStack> ctx) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
             ServerPlayer player = ctx.getSource().getPlayerOrException();
             ItemStack passport = player.getItemInHand(InteractionHand.MAIN_HAND);
             if (!PassportData.isIssued(passport)) {
@@ -268,7 +268,7 @@ public class PassportMod implements ModInitializer {
             return 1;
         }
 
-        static int vote(net.minecraft.commands.CommandSourceStack source, boolean yes) {
+        static int vote(net.minecraft.commands.CommandSourceStack source, boolean yes) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
             ServerPlayer player = source.getPlayerOrException();
             VoteSession session = ACTIVE_VOTE;
             if (session != null && !session.eligibleVoters().contains(player.getUUID())) {
@@ -310,7 +310,7 @@ public class PassportMod implements ModInitializer {
                     + session.surname() + " " + session.name() + " " + session.patronymic() + ".");
         }
 
-        static int changeRegistration(com.mojang.brigadier.context.CommandContext<net.minecraft.commands.CommandSourceStack> ctx) {
+        static int changeRegistration(com.mojang.brigadier.context.CommandContext<net.minecraft.commands.CommandSourceStack> ctx) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
             ServerPlayer player = ctx.getSource().getPlayerOrException();
             ItemStack passport = player.getItemInHand(InteractionHand.MAIN_HAND);
             if (!PassportData.isIssued(passport)) {
