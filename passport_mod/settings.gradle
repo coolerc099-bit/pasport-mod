@@ -5,13 +5,15 @@ pluginManagement {
         mavenCentral()
     }
 }
-
+ 
 dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
+    repositoriesMode.set(RepositoriesMode.PREFER_PROJECT)
     repositories {
         maven { url = 'https://maven.fabricmc.net/' }
+        maven { url = 'https://libraries.minecraft.net/' }
         mavenCentral()
     }
 }
-
+ 
 rootProject.name = 'passport-rp'
+ 
