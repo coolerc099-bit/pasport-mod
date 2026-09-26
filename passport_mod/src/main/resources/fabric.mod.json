@@ -9,6 +9,7 @@
   ],
   "license": "MIT",
   "environment": "*",
+  "mixins": ["passportmod.mixins.json"],
   "entrypoints": {
     "main": [
       "ru.passportmod.PassportMod"

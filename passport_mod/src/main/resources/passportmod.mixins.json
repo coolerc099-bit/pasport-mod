@@ -1,0 +1,7 @@
+{
+  "required": true,
+  "package": "ru.passportmod.mixin",
+  "client": [
+    "InventoryScreenMixin"
+  ]
+}

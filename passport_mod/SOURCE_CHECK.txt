@@ -1,11 +1,22 @@
-Passport RP Fabric 26.3 source check
+Passport RP source/resource check (Minecraft 26.3 / Fabric / Java 25)
 
-Checked:
-- JSON resources parse successfully.
-- PassportMod.java delimiters are balanced.
-- No stale ResourceLocation.fromNamespaceAndPath usage remains.
-- No duplicate issuingAuthority parameter remains.
-- Passport texture is 32x32 RGBA.
+Implemented:
+- GUI-only passport issue/edit/view workflow; legacy ordinary-player commands removed.
+- /passport help and /passport show <player> kept.
+- /y and /n used only for passport-show confirmation.
+- Server-side persistent passport records, pocket state and per-player 30-minute FIO cooldown.
+- Separate passport pocket GUI and Inventory-screen P button; only PassportItem accepted by server action.
+- 12-page passport viewer; owner Minecraft skin head is rendered as the portrait.
+- FIO GUI with server-side voting preserved; individual cooldown is not reset on rejoin.
+- Registration, marriage, children, military, extra information, status and replacement management.
+- Show request: same world, <= 4 blocks, 15-second confirmation window, recipient /y or /n.
+- 16 passport variants and passport desk included in Creative Inventory.
+- All passport item definitions, item models, desk blockstate/model and detailed 32x32 textures present.
+- GitHub Actions workflow updated for Java 25, Ubuntu 24.04, Gradle 9.5.1 and current action majors.
 
-Not checked in this container:
-- Full Gradle/Minecraft compilation, because this environment has Java 21 and no Gradle 9.6 installation. Minecraft 26.3 development is configured for Java 25.
+Static validation performed in this sandbox:
+- All JSON resource files parse successfully.
+- All PNG resource files are valid RGBA images; passport/desk textures are 32x32.
+- Java source files have balanced braces/parentheses and no javac syntax errors were observed before dependency-resolution errors.
+
+Full Gradle/Minecraft compilation was not executable in this sandbox because it does not contain Java 25, Gradle, or the required Fabric/Minecraft dependency cache, and outbound downloads are unavailable. The repository workflow performs the real Java 25 / Gradle 9.5.1 build on GitHub and fails the build on missing resources.

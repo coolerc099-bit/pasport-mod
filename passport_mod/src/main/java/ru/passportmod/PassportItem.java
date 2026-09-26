@@ -1,6 +1,5 @@
 package ru.passportmod;
 
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -8,23 +7,36 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerPlayer;
 
-public class PassportItem extends Item {
+public final class PassportItem extends Item {
     public PassportItem(Properties properties) {
         super(properties);
     }
 
     @Override
     public InteractionResult use(Level level, Player user, InteractionHand hand) {
-        if (level.isClientSide()) {
+        if (level.isClientSide()) return InteractionResult.SUCCESS;
+        if (!(user instanceof ServerPlayer player)) return InteractionResult.PASS;
+
+        ItemStack stack = user.getItemInHand(hand);
+        if (!PassportMod.PassportData.isPassport(stack)) return InteractionResult.PASS;
+
+        PassportMod.PassportRecord record = PassportMod.recordForStack(player, stack);
+        if (record == null) {
+            if (!PassportMod.PassportData.isIssued(stack)) {
+                player.sendSystemMessage(Component.literal(
+                        "Это чистый бланк. Положи его в «Карман для паспорта» и открой паспортный стол."
+                ));
+            } else {
+                player.sendSystemMessage(Component.literal(
+                        "Сервер не подтвердил владельца или ID этого паспорта. Использование отклонено."
+                ));
+            }
             return InteractionResult.SUCCESS;
         }
-        ItemStack stack = user.getItemInHand(hand);
-        if (!PassportMod.PassportData.isIssued(stack)) {
-            user.sendSystemMessage(Component.literal("Чистый бланк паспорта. Подойдите к паспортному столу и используйте /passport fill ... или /passport issue ..."));
-        } else if (user instanceof net.minecraft.server.level.ServerPlayer serverPlayer) {
-            PassportMod.PassportData.showPage(serverPlayer, stack, 1);
-        }
+
+        PassportMod.openViewer(player, record);
         return InteractionResult.SUCCESS;
     }
 }
