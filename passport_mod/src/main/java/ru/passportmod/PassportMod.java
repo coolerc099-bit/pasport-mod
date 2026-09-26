@@ -44,6 +44,7 @@ public class PassportMod implements ModInitializer {
             .withResolverStyle(ResolverStyle.STRICT);
     static final Pattern NAME_PATTERN = Pattern.compile("[A-Za-zА-Яа-яЁё-]{2,32}");
     static final Pattern SEX_PATTERN = Pattern.compile("[МмЖжMFmf]");
+    static final Pattern UNIT_CODE_PATTERN = Pattern.compile("\\d{3}-\\d{3}");
 
     static VoteSession ACTIVE_VOTE;
 
@@ -80,8 +81,9 @@ public class PassportMod implements ModInitializer {
                                                                         .then(Commands.argument("birthPlace", StringArgumentType.string())
                                                                                 .then(Commands.argument("issueDate", StringArgumentType.string())
                                                                                         .then(Commands.argument("issuingAuthority", StringArgumentType.string())
-                                                                                                .then(Commands.argument("registration", StringArgumentType.greedyString())
-                                                                                                        .executes(PassportCommands::fillSelf))))))))))))
+                                                                                                .then(Commands.argument("unitCode", StringArgumentType.string())
+                                                                                                        .then(Commands.argument("registration", StringArgumentType.greedyString())
+                                                                                                                .executes(PassportCommands::fillSelf)))))))))))))
                         .then(Commands.literal("issue")
                                 .then(Commands.argument("player", EntityArgument.player())
                                         .then(Commands.argument("surname", StringArgumentType.string())
@@ -92,8 +94,9 @@ public class PassportMod implements ModInitializer {
                                                                                 .then(Commands.argument("birthPlace", StringArgumentType.string())
                                                                                         .then(Commands.argument("issueDate", StringArgumentType.string())
                                                                                                 .then(Commands.argument("issuingAuthority", StringArgumentType.string())
-                                                                                                        .then(Commands.argument("registration", StringArgumentType.greedyString())
-                                                                                                                .executes(PassportCommands::issueOther))))))))))))
+                                                                                                        .then(Commands.argument("unitCode", StringArgumentType.string())
+                                                                                                                .then(Commands.argument("registration", StringArgumentType.greedyString())
+                                                                                                                        .executes(PassportCommands::issueOther)))))))))))))
                         .then(Commands.literal("namechange")
                                 .then(Commands.argument("surname", StringArgumentType.string())
                                         .then(Commands.argument("name", StringArgumentType.string())
@@ -110,7 +113,7 @@ public class PassportMod implements ModInitializer {
 
     private static int help(net.minecraft.commands.CommandSourceStack source) {
         source.sendSuccess(() -> Component.literal("Паспорт RP: /passport info, /passport fill, /passport issue, /passport namechange, /passport vote yes|no, /passport registration").withStyle(ChatFormatting.GRAY), false);
-        source.sendSuccess(() -> Component.literal("Заполнить свой: /passport fill \"Фамилия\" \"Имя\" \"Отчество\" М 01.01.2000 \"Место рождения\" 26.09.2026 \"Орган выдачи\" \"Регистрация\"").withStyle(ChatFormatting.GRAY), false);
+        source.sendSuccess(() -> Component.literal("Заполнить свой: /passport fill \"Фамилия\" \"Имя\" \"Отчество\" М 01.01.2000 \"Место рождения\" 26.09.2026 \"Орган выдачи\" 770-001 \"Регистрация\"").withStyle(ChatFormatting.GRAY), false);
         return 1;
     }
 
@@ -194,16 +197,17 @@ public class PassportMod implements ModInitializer {
             String birthPlace = StringArgumentType.getString(ctx, "birthPlace");
             String issueDate = StringArgumentType.getString(ctx, "issueDate");
             String authority = StringArgumentType.getString(ctx, "issuingAuthority");
+            String unitCode = StringArgumentType.getString(ctx, "unitCode");
             String registration = StringArgumentType.getString(ctx, "registration");
 
-            String validation = PassportData.validate(surname, name, patronymic, sex, birthDate, birthPlace, issueDate, authority, registration);
+            String validation = PassportData.validate(surname, name, patronymic, sex, birthDate, birthPlace, issueDate, authority, unitCode, registration);
             if (validation != null) {
                 issuer.sendSystemMessage(Component.literal("Ошибка оформления: " + validation).withStyle(ChatFormatting.RED));
                 return 0;
             }
 
             ItemStack result = blank.copy();
-            PassportData.issue(result, target, surname, name, patronymic, sex.toUpperCase(), birthDate, birthPlace, issueDate, authority, registration);
+            PassportData.issue(result, target, surname, name, patronymic, sex.toUpperCase(), birthDate, birthPlace, issueDate, authority, unitCode, registration);
 
             if (transferToTarget) {
                 if (!target.getInventory().add(result)) {
@@ -215,7 +219,7 @@ public class PassportMod implements ModInitializer {
                 target.sendSystemMessage(Component.literal("Вам выдан паспорт Российской Федерации.").withStyle(ChatFormatting.GREEN));
             } else {
                 blank.set(DataComponents.CUSTOM_DATA, result.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY));
-                blank.set(DataComponents.CUSTOM_NAME, Component.literal("Паспорт Российской Федерации"));
+                blank.set(DataComponents.CUSTOM_NAME, Component.literal("Паспорт гражданина РФ"));
                 issuer.sendSystemMessage(Component.literal("Паспорт оформлен. Серия и номер присвоены автоматически.").withStyle(ChatFormatting.GREEN));
             }
 
@@ -367,6 +371,7 @@ public class PassportMod implements ModInitializer {
                           String birthPlace,
                           String issueDate,
                           String issuingAuthority,
+                          String unitCode,
                           String registration) {
             String series = String.format("%04d", ThreadLocalRandom.current().nextInt(1, 10000));
             String number = String.format("%06d", ThreadLocalRandom.current().nextInt(1, 1000000));
@@ -387,9 +392,10 @@ public class PassportMod implements ModInitializer {
                 tag.putString("number", number);
                 tag.putString("issue_date", issueDate);
                 tag.putString("issuing_authority", issuingAuthority);
+                tag.putString("unit_code", unitCode);
                 tag.putString("registration", registration);
             });
-            stack.set(DataComponents.CUSTOM_NAME, Component.literal("Паспорт Российской Федерации"));
+            stack.set(DataComponents.CUSTOM_NAME, Component.literal("Паспорт гражданина РФ"));
         }
 
         static void updateName(ItemStack stack, String surname, String name, String patronymic) {
@@ -401,7 +407,7 @@ public class PassportMod implements ModInitializer {
         }
 
         static String validate(String surname, String name, String patronymic, String sex, String birthDate,
-                               String birthPlace, String issueDate, String authority, String registration) {
+                               String birthPlace, String issueDate, String authority, String unitCode, String registration) {
             if (!PassportCommands.validName(surname) || !PassportCommands.validName(name) || !PassportCommands.validName(patronymic)) {
                 return "ФИО допускает только буквы и дефис, длина 2–32 символа.";
             }
@@ -423,6 +429,9 @@ public class PassportMod implements ModInitializer {
             if (birthPlace.length() < 2 || birthPlace.length() > 120 || authority.length() < 2 || authority.length() > 120 || registration.length() < 3 || registration.length() > 120) {
                 return "текстовые поля слишком короткие или длинные";
             }
+            if (!UNIT_CODE_PATTERN.matcher(unitCode).matches()) {
+                return "код подразделения должен быть в формате ХХХ-ХХХ (например 770-001)";
+            }
             return null;
         }
 
@@ -435,7 +444,7 @@ public class PassportMod implements ModInitializer {
         }
 
         static void sendFull(ServerPlayer player, ItemStack stack) {
-            player.sendSystemMessage(Component.literal("════ ПАСПОРТ РОССИЙСКОЙ ФЕДЕРАЦИИ ════").withStyle(ChatFormatting.RED, ChatFormatting.BOLD));
+            player.sendSystemMessage(Component.literal("════ ПАСПОРТ ГРАЖДАНИНА РОССИЙСКОЙ ФЕДЕРАЦИИ ════").withStyle(ChatFormatting.RED, ChatFormatting.BOLD));
             line(player, "Фамилия", get(stack, "surname"));
             line(player, "Имя", get(stack, "name"));
             line(player, "Отчество", get(stack, "patronymic"));
@@ -447,6 +456,7 @@ public class PassportMod implements ModInitializer {
             line(player, "Номер", get(stack, "number"));
             line(player, "Дата выдачи", get(stack, "issue_date"));
             line(player, "Кем выдан", get(stack, "issuing_authority"));
+            line(player, "Код подразделения", get(stack, "unit_code"));
             line(player, "Регистрация", get(stack, "registration"));
             player.sendSystemMessage(Component.literal("Паспорт принадлежит: " + get(stack, "owner_name")).withStyle(ChatFormatting.GRAY));
             player.sendSystemMessage(Component.literal("Изменение ФИО: /passport namechange \"Фамилия\" \"Имя\" \"Отчество\"").withStyle(ChatFormatting.GRAY));
