@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "passportmod:block/passport_desk"
+    },
+    "facing=south": {
+      "model": "passportmod:block/passport_desk",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "passportmod:block/passport_desk",
+      "y": 270
+    },
+    "facing=east": {
+      "model": "passportmod:block/passport_desk",
+      "y": 90
+    }
+  }
+}

@@ -1,0 +1,105 @@
+plugins {
+    id 'net.fabricmc.fabric-loom' version "${loom_version}"
+    id 'maven-publish'
+}
+
+repositories {
+    maven { url = 'https://libraries.minecraft.net/' }
+}
+
+loom {
+    splitEnvironmentSourceSets()
+    mods {
+        "passportmod" {
+            sourceSet sourceSets.main
+            sourceSet sourceSets.client
+        }
+    }
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    implementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+}
+
+processResources {
+    def version = project.version
+    inputs.property "version", version
+    filesMatching("fabric.mod.json") {
+        expand "version": version
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    it.options.release = 25
+    it.options.encoding = 'UTF-8'
+}
+
+java {
+    withSourcesJar()
+    sourceCompatibility = JavaVersion.VERSION_25
+    targetCompatibility = JavaVersion.VERSION_25
+}
+
+jar {
+    archiveBaseName = 'passport-rp'
+    from("LICENSE") {
+        rename { "LICENSE_${project.name}" }
+    }
+}
+
+// Fail the build when a referenced model/item definition or passport texture is missing.
+tasks.register('verifyPassportResources') {
+    group = 'verification'
+    description = 'Checks passport item definitions, models, blockstates and textures.'
+    doLast {
+        def assets = file('src/main/resources/assets/passportmod')
+        def expectedItems = ['passport','passport_white','passport_orange','passport_magenta','passport_light_blue','passport_yellow','passport_lime','passport_pink','passport_gray','passport_light_gray','passport_cyan','passport_purple','passport_blue','passport_brown','passport_green','passport_black','passport_desk']
+        expectedItems.each { id ->
+            def itemDef = new File(assets, "items/${id}.json")
+            def model = new File(assets, "models/item/${id}.json")
+            assert itemDef.isFile() : "Missing item definition: ${itemDef}"
+            assert model.isFile() : "Missing item model: ${model}"
+            def json = new groovy.json.JsonSlurper().parse(itemDef)
+            def modelPath = json.model?.model
+            assert modelPath : "Item definition ${id} has no model.model"
+            def expectedModel = new File(assets, modelPath.replace('passportmod:', '').replace(':','/') + '.json')
+            assert expectedModel.isFile() : "Missing referenced model for ${id}: ${expectedModel}"
+        }
+        def texDir = new File(assets, 'textures/item')
+        expectedItems.findAll { it != 'passport_desk' }.each { id ->
+            def tex = new File(texDir, "${id}.png")
+            assert tex.isFile() : "Missing passport texture: ${tex}"
+        }
+        ['passport_desk_front.png','passport_desk_side.png','passport_desk_top.png'].each { name ->
+            assert new File(assets,'textures/block/' + name).isFile() : "Missing desk texture: ${name}"
+        }
+        assert new File(assets,'blockstates/passport_desk.json').isFile() : 'Missing desk blockstate'
+        def slurper = new groovy.json.JsonSlurper()
+        fileTree(new File(assets, 'models')).matching { include '**/*.json' }.each { modelFile ->
+            def modelJson = slurper.parse(modelFile)
+            (modelJson.textures?.values() ?: []).findAll { it instanceof String && !it.startsWith('#') }.each { tex ->
+                def parts = tex.split(':', 2)
+                def path = parts.length == 2 ? parts[1] : parts[0]
+                def textureFile = new File(assets, 'textures/' + path + '.png')
+                assert textureFile.isFile() : "Missing model texture ${tex} referenced by ${modelFile}"
+            }
+        }
+        println "Passport RP resource verification: OK (${expectedItems.size()} item definitions)."
+    }
+}
+
+tasks.named('build') {
+    dependsOn tasks.named('verifyPassportResources')
+}
+
+publishing {
+    publications {
+        create("mavenJava", MavenPublication) {
+            from components.java
+        }
+    }
+    repositories {
+    }
+}

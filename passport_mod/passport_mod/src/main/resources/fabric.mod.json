@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "id": "passportmod",
+  "version": "${version}",
+  "name": "Passport RP",
+  "description": "Игровой RP-мод паспорта с одноразовым оформлением и голосованием за изменение ФИО.",
+  "authors": [
+    "Passport RP"
+  ],
+  "license": "MIT",
+  "environment": "*",
+  "mixins": ["passportmod.mixins.json"],
+  "entrypoints": {
+    "main": [
+      "ru.passportmod.PassportMod"
+    ],
+    "client": [
+      "ru.passportmod.PassportModClient"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.19.5",
+    "minecraft": "~26.3",
+    "fabric-api": ">=0.161.0+26.3",
+    "java": ">=25"
+  }
+}

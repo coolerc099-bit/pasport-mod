@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "RPR",
+    "LBL",
+    "PPP"
+  ],
+  "key": {
+    "R": "minecraft:lime_dye",
+    "P": "minecraft:paper",
+    "L": "minecraft:leather",
+    "B": "minecraft:book"
+  },
+  "result": {
+    "id": "passportmod:passport_lime",
+    "count": 1
+  }
+}
