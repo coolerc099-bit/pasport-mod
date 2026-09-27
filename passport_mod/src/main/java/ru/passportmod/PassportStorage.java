@@ -4,7 +4,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.saveddata.SavedDataType;
 import net.minecraft.server.level.ServerLevel;
@@ -22,7 +22,7 @@ public final class PassportStorage extends SavedData {
     );
 
     public static final SavedDataType<PassportStorage> TYPE = new SavedDataType<>(
-            ResourceLocation.fromNamespaceAndPath(PassportMod.MOD_ID, "passport_data"),
+            Identifier.fromNamespaceAndPath(PassportMod.MOD_ID, "passport_data"),
             PassportStorage::new,
             CODEC,
             null
