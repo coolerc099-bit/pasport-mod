@@ -22,7 +22,7 @@ public final class PassportStorage extends SavedData {
     );
 
     public static final SavedDataType<PassportStorage> TYPE = new SavedDataType<>(
-            PassportMod.MOD_ID + "_passport_data",
+            Identifier.fromNamespaceAndPath(PassportMod.MOD_ID, "passport_data"),
             PassportStorage::new,
             CODEC,
             null
