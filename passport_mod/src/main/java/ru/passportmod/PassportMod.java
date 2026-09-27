@@ -20,7 +20,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
@@ -65,14 +65,14 @@ public final class PassportMod implements ModInitializer {
     public static final PassportItem PASSPORT;
 
     public static final ResourceKey<Block> PASSPORT_DESK_KEY =
-            ResourceKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath(MOD_ID, "passport_desk"));
+            ResourceKey.create(Registries.BLOCK, ResourceLocation.fromNamespaceAndPath(MOD_ID, "passport_desk"));
     public static final PassportDeskBlock PASSPORT_DESK = registerBlock(
             PASSPORT_DESK_KEY,
             PassportDeskBlock::new,
             BlockBehaviour.Properties.of().strength(2.5F).sound(SoundType.WOOD)
     );
     public static final ResourceKey<Item> PASSPORT_DESK_ITEM_KEY =
-            ResourceKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(MOD_ID, "passport_desk"));
+            ResourceKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath(MOD_ID, "passport_desk"));
     public static final BlockItem PASSPORT_DESK_ITEM = registerBlockItem(
             PASSPORT_DESK_ITEM_KEY, PASSPORT_DESK, new Item.Properties()
     );
@@ -99,7 +99,7 @@ public final class PassportMod implements ModInitializer {
 
     public record ActionPayload(String action, String data) implements net.minecraft.network.protocol.common.custom.CustomPacketPayload {
         public static final Type<ActionPayload> TYPE = new Type<>(
-                Identifier.fromNamespaceAndPath(MOD_ID, "action")
+                ResourceLocation.fromNamespaceAndPath(MOD_ID, "action")
         );
         public static final StreamCodec<RegistryFriendlyByteBuf, ActionPayload> CODEC = StreamCodec.composite(
                 ByteBufCodecs.STRING_UTF8, ActionPayload::action,
@@ -115,7 +115,7 @@ public final class PassportMod implements ModInitializer {
 
     public record OpenGuiPayload(String screen, String data) implements net.minecraft.network.protocol.common.custom.CustomPacketPayload {
         public static final Type<OpenGuiPayload> TYPE = new Type<>(
-                Identifier.fromNamespaceAndPath(MOD_ID, "open_gui")
+                ResourceLocation.fromNamespaceAndPath(MOD_ID, "open_gui")
         );
         public static final StreamCodec<RegistryFriendlyByteBuf, OpenGuiPayload> CODEC = StreamCodec.composite(
                 ByteBufCodecs.STRING_UTF8, OpenGuiPayload::screen,
@@ -131,7 +131,7 @@ public final class PassportMod implements ModInitializer {
 
     public record NoticePayload(String message) implements net.minecraft.network.protocol.common.custom.CustomPacketPayload {
         public static final Type<NoticePayload> TYPE = new Type<>(
-                Identifier.fromNamespaceAndPath(MOD_ID, "notice")
+                ResourceLocation.fromNamespaceAndPath(MOD_ID, "notice")
         );
         public static final StreamCodec<RegistryFriendlyByteBuf, NoticePayload> CODEC = StreamCodec.composite(
                 ByteBufCodecs.STRING_UTF8, NoticePayload::message,
@@ -147,7 +147,7 @@ public final class PassportMod implements ModInitializer {
     private static PassportItem registerPassportVariant(String path) {
         ResourceKey<Item> key = ResourceKey.create(
                 Registries.ITEM,
-                Identifier.fromNamespaceAndPath(MOD_ID, path)
+                ResourceLocation.fromNamespaceAndPath(MOD_ID, path)
         );
         return register(key, PassportItem::new, new Item.Properties().stacksTo(1));
     }
@@ -557,7 +557,7 @@ public final class PassportMod implements ModInitializer {
                 return;
             }
         }
-        Identifier id = BuiltInRegistries.ITEM.getKey(stack.getItem());
+        ResourceLocation id = BuiltInRegistries.ITEM.getKey(stack.getItem());
         setPocketItemPath(player, id.getPath());
         player.getInventory().removeItem(slot, 1);
         notice(player, "Паспорт помещён в «Карман для паспорта». Он не занимает обычный слот.");
@@ -600,7 +600,7 @@ public final class PassportMod implements ModInitializer {
     }
 
     private static ItemStack createPassportStack(String path, ServerPlayer owner) {
-        Identifier id = Identifier.fromNamespaceAndPath(MOD_ID, path);
+        ResourceLocation id = ResourceLocation.fromNamespaceAndPath(MOD_ID, path);
         Item item = BuiltInRegistries.ITEM.getValue(id);
         ItemStack stack = new ItemStack(item);
         PassportRecord record = currentRecord(owner);

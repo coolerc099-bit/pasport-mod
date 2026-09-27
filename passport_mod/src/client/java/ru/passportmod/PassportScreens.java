@@ -1,24 +1,17 @@
 package ru.passportmod;
 
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.player.Player;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 final class PassportScreens {
     private PassportScreens() {}
@@ -93,10 +86,6 @@ final class PassportScreens {
             if (close) button("Закрыть", left + 230, top + 232, 110, 20, this::onClose);
         }
 
-        @Override
-        public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-            super.render(graphics, mouseX, mouseY, partialTick);
-        }
     }
 
     private static final class SimpleInfoScreen extends BaseScreen {
@@ -293,34 +282,6 @@ final class PassportScreens {
 
         private int arraySize(JsonObject o, String key) {
             return o.has(key) && o.get(key).isJsonArray() ? o.getAsJsonArray(key).size() : 0;
-        }
-
-        @Override
-        public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-            super.render(graphics, mouseX, mouseY, partialTick);
-            if (page == 1) {
-                ResourceLocation skinTexture = resolveSkinTexture(value(data, "ownerUuid"));
-                if (skinTexture != null) {
-                    net.minecraft.client.gui.components.PlayerFaceRenderer.draw(graphics, skinTexture, left + 242, top + 55, 86);
-                }
-            }
-        }
-
-        private ResourceLocation resolveSkinTexture(String uuidText) {
-            Minecraft mc = Minecraft.getInstance();
-            if (mc.player == null) return null;
-            try {
-                UUID uuid = UUID.fromString(uuidText);
-                if (mc.player.getUUID().equals(uuid)) return mc.player.getSkin().texture();
-                ClientLevel level = mc.level;
-                if (level != null) {
-                    for (Player player : level.players()) {
-                        if (player.getUUID().equals(uuid) && player instanceof AbstractClientPlayer cp)
-                            return cp.getSkin().texture();
-                    }
-                }
-            } catch (Exception ignored) {}
-            return mc.player.getSkin().texture();
         }
 
         private String shorten(String value, int max) {
