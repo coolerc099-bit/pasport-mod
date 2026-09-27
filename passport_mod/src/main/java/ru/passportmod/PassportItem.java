@@ -2,7 +2,7 @@ package ru.passportmod;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -15,12 +15,12 @@ public final class PassportItem extends Item {
     }
 
     @Override
-    public ItemInteractionResult use(Level level, Player user, InteractionHand hand) {
-        if (level.isClientSide()) return ItemInteractionResult.SUCCESS;
-        if (!(user instanceof ServerPlayer player)) return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+    public InteractionResult use(Level level, Player user, InteractionHand hand) {
+        if (level.isClientSide()) return InteractionResult.SUCCESS;
+        if (!(user instanceof ServerPlayer player)) return InteractionResult.PASS;
 
         ItemStack stack = user.getItemInHand(hand);
-        if (!PassportMod.PassportData.isPassport(stack)) return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        if (!PassportMod.PassportData.isPassport(stack)) return InteractionResult.PASS;
 
         PassportMod.PassportRecord record = PassportMod.recordForStack(player, stack);
         if (record == null) {
@@ -33,10 +33,10 @@ public final class PassportItem extends Item {
                         "Сервер не подтвердил владельца или ID этого паспорта. Использование отклонено."
                 ));
             }
-            return ItemInteractionResult.SUCCESS;
+            return InteractionResult.SUCCESS;
         }
 
         PassportMod.openViewer(player, record);
-        return ItemInteractionResult.SUCCESS;
+        return InteractionResult.SUCCESS;
     }
 }
