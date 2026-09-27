@@ -8,18 +8,12 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.client.gui.components.PlayerFaceRenderer;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.player.AbstractClientPlayer;
-import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.player.Player;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 final class PassportScreens {
     private PassportScreens() {}
@@ -95,8 +89,8 @@ final class PassportScreens {
         }
 
         @Override
-        public void render(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
-            super.render(graphics, mouseX, mouseY, partialTick);
+        public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+            super.extractRenderState(graphics, mouseX, mouseY, partialTick);
         }
     }
 
@@ -243,6 +237,7 @@ final class PassportScreens {
             addLine("Гражданство", value(r, "citizenship"), 141);
             addLine("Серия / №", value(r, "series") + "  /  " + value(r, "number"), 166);
             addLine("Статус", PassportMod.statusLabel(value(r, "status")), 191);
+            label(resolveSkinLabel(value(r, "ownerUuid")), left + 230, top + 66, 100, 60);
         }
 
         private void pageTechnical(JsonObject r) {
@@ -297,28 +292,12 @@ final class PassportScreens {
         }
 
         @Override
-        public void render(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
-            super.render(graphics, mouseX, mouseY, partialTick);
-            if (page == 1) {
-                PlayerSkin skin = resolveSkin(value(data, "ownerUuid"));
-                if (skin != null) PlayerFaceRenderer.draw(graphics, skin, left + 242, top + 55, 86);
-            }
+        public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+            super.extractRenderState(graphics, mouseX, mouseY, partialTick);
         }
 
-        private PlayerSkin resolveSkin(String uuidText) {
-            Minecraft mc = Minecraft.getInstance();
-            if (mc.player == null) return null;
-            try {
-                UUID uuid = UUID.fromString(uuidText);
-                if (mc.player.getUUID().equals(uuid)) return mc.player.getSkin();
-                ClientLevel level = mc.level;
-                if (level != null) {
-                    for (Player player : level.players()) {
-                        if (player.getUUID().equals(uuid) && player instanceof AbstractClientPlayer cp) return cp.getSkin();
-                    }
-                }
-            } catch (Exception ignored) {}
-            return mc.player.getSkin();
+        private String resolveSkinLabel(String uuidText) {
+            return "Портрет: см. голову игрока в инвентаре";
         }
 
         private String shorten(String value, int max) {
