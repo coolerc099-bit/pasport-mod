@@ -1,17 +1,25 @@
 package ru.passportmod;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.components.PlayerFaceRenderer;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Player;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 final class PassportScreens {
     private PassportScreens() {}
@@ -86,6 +94,10 @@ final class PassportScreens {
             if (close) button("Закрыть", left + 230, top + 232, 110, 20, this::onClose);
         }
 
+        @Override
+        public void render(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+            super.render(graphics, mouseX, mouseY, partialTick);
+        }
     }
 
     private static final class SimpleInfoScreen extends BaseScreen {
@@ -282,6 +294,31 @@ final class PassportScreens {
 
         private int arraySize(JsonObject o, String key) {
             return o.has(key) && o.get(key).isJsonArray() ? o.getAsJsonArray(key).size() : 0;
+        }
+
+        @Override
+        public void render(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+            super.render(graphics, mouseX, mouseY, partialTick);
+            if (page == 1) {
+                PlayerSkin skin = resolveSkin(value(data, "ownerUuid"));
+                if (skin != null) PlayerFaceRenderer.draw(graphics, skin, left + 242, top + 55, 86);
+            }
+        }
+
+        private PlayerSkin resolveSkin(String uuidText) {
+            Minecraft mc = Minecraft.getInstance();
+            if (mc.player == null) return null;
+            try {
+                UUID uuid = UUID.fromString(uuidText);
+                if (mc.player.getUUID().equals(uuid)) return mc.player.getSkin();
+                ClientLevel level = mc.level;
+                if (level != null) {
+                    for (Player player : level.players()) {
+                        if (player.getUUID().equals(uuid) && player instanceof AbstractClientPlayer cp) return cp.getSkin();
+                    }
+                }
+            } catch (Exception ignored) {}
+            return mc.player.getSkin();
         }
 
         private String shorten(String value, int max) {

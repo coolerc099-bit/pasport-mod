@@ -558,7 +558,6 @@ public final class PassportMod implements ModInitializer {
             }
         }
         Identifier id = BuiltInRegistries.ITEM.getKey(stack.getItem());
-        if (id == null) { notice(player, "Не удалось определить тип паспорта."); return; }
         setPocketItemPath(player, id.getPath());
         player.getInventory().removeItem(slot, 1);
         notice(player, "Паспорт помещён в «Карман для паспорта». Он не занимает обычный слот.");
